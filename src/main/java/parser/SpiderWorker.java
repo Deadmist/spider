@@ -32,20 +32,20 @@ public class SpiderWorker extends Thread {
 
     private void runWorker() {
         while (!this.interrupted) {
-            String url = Queues.getUrlToProcess();
-            if (url != null) {
-                ArrayList<String> links = fetchUrl(url);
-                if (links == null) continue;
-                System.out.printf("Found %d on %s\n", links.size(), url);
-                for (String l : links) {
-                    Queues.addUrlToProcess(l);
-                }
-                Queues.addResult(new Results(url, null, null));
-            }
             try {
+                String url = Queues.getUrlToProcess();
+                if (url != null) {
+                    ArrayList<String> links = fetchUrl(url);
+                    if (links == null) continue;
+                    System.out.printf("Found %d on %s\n", links.size(), url);
+                    for (String l : links) {
+                        Queues.addUrlToProcess(l);
+                    }
+                    Queues.addResult(new Results(url, null, null));
+                }
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                this.interrupted = true;
             }
         }
     }
@@ -65,9 +65,11 @@ public class SpiderWorker extends Thread {
         } catch (MalformedURLException ex) {
             System.out.printf("%s was malformed\n", url);
         } catch (HttpStatusException ex) {
-            System.out.printf("%s returned %s", ex.toString());
+            System.out.printf("%s returned %s", url, ex.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.printf("IOException fetching %s\n", url);
+        } catch (Exception e) {
+            System.out.printf("Uncaught exception %s\n", e.getMessage());
         }
         return null;
     }

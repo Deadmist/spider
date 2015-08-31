@@ -23,13 +23,13 @@ public class Queues {
         return finished.poll();
     }
 
-    public static void addResult(Results result) {
+    public static void addResult(Results result) throws InterruptedException {
         try {
             ignore.add(result.getUrl());
             finished.put(result);
         } catch (InterruptedException e) {
             System.out.printf("Could not add %s to the finished queue because we were interrupted\n", result.getUrl());
-            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -41,17 +41,33 @@ public class Queues {
         return unprocessed.poll();
     }
 
-    public static void addUrlToProcess(String url) {
+    public static void addUrlToProcess(String url) throws InterruptedException {
         try {
-            unprocessed.put(url);
+            if (!isUrlIgnored(url) && !url.isEmpty()) {
+                unprocessed.put(url);
+            }
+
         } catch (InterruptedException e) {
             System.out.printf("Could not add %s to the processsing queue because we were interrupted\n", url);
-            e.printStackTrace();
+            throw e;
         }
     }
 
     public static boolean unprocessedQueueEmpty() {
         return unprocessed.isEmpty();
+    }
+
+    public static String allUrls() {
+        String[] unp = unprocessed.toArray(new String[0]);
+        String[] ign = ignore.toArray(new String[0]);
+        String re = "";
+        for (String s : unp) {
+            re += s + "\n";
+        }
+        for (String s : ign) {
+            re += s + "\n";
+        }
+        return re;
     }
 
 }

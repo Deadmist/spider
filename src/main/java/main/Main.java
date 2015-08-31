@@ -9,15 +9,29 @@ import parser.SpiderWorker;
 public class Main {
 
     public static void main(String[] args) throws InterruptedException {
-        Queues.addUrlToProcess("https://xkcd.com/");
-        SpiderWorker worker = new SpiderWorker();
+        Queues.addUrlToProcess("https://www.reddit.com/r/Eve");
+        SpiderWorker[] workers = new SpiderWorker[10];
 
-        worker.start();
+        for(int i = 0; i < workers.length; i++) {
+            workers[i] = new SpiderWorker();
+            workers[i].start();
+            System.out.printf("Started worker %d\n", i);
+            Thread.sleep(200);
+        }
 
-        Thread.sleep(20000);
-        worker.interrupt();
+        Thread.sleep(6000);
 
-        worker.join();
+        for(int i = 0; i < workers.length; i++) {
+            workers[i].interrupt();
+        }
+        for(int i = 0; i < workers.length; i++) {
+            workers[i].join();
+        }
+
+        System.out.printf("#########################################################################\n" +
+                "STOPPED CRAWLING\n" +
+                "URLS FOUND:\n" +
+                "%s\n", Queues.allUrls());
 
     }
 
