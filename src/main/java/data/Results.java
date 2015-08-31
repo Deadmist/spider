@@ -5,7 +5,13 @@ package data;
  */
 public class Results {
 
-    private String url;
+    private String url, status, body;
+
+    public Results(String url, String status, String body) {
+        this.status = status;
+        this.body = body;
+        this.url = url;
+    }
 
     public String getUrl() {
         return url;
